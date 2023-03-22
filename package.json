@@ -1,5 +1,5 @@
 {
-  "name": "myapp",
+  "name": "deploymentapp",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -22,17 +22,18 @@
     "morgan": "~1.9.1",
     "ngrok": "^4.3.3",
     "node-bigcommerce": "^4.1.0",
+    "node-fetch": "^2.6.9",
     "nodemon": "^2.0.21",
     "pg": "^8.10.0",
     "raptor-pubsub": "^1.0.5"
   },
   "devDependencies": {
-    "marked": "^3.0.8",
     "@marko/compiler": "^5.16.1",
     "@marko/webpack": "^9.2.0",
     "@types/marko": "^4.6.3",
     "css-loader": "^6.5.0",
     "css-minimizer-webpack-plugin": "^3.1.1",
+    "marked": "^4.2.12",
     "mini-css-extract-plugin": "^2.4.3",
     "spawn-server-webpack-plugin": "^6.1.0",
     "webpack": "^5.60.0",
