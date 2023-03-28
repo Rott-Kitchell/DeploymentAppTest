@@ -1,10 +1,9 @@
-import statuses from "../../db/statuses.json"
+import statuses from "../../db/statuses.json" assert { type: "json" };
 let statusMap = new Map();
-statuses.map(stat => {
-  let {id, ...theRest} = stat
-  statusMap.set(id, theRest)
-})
-
+statuses.map((stat) => {
+  let { id, ...theRest } = stat;
+  statusMap.set(id, theRest);
+});
 
 // const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 // const reservationValidator = require("../util/reservationValidator");
@@ -87,12 +86,15 @@ statuses.map(stat => {
 
 async function BCOrderHook(req, res, next) {
   let order = req.body;
-  console.log(order)
-  if (order.scope === 'store/order/statusUpdated') {
+  if (order.scope === "store/order/statusUpdated") {
     let orderId = order.data.id;
     let previous_status_id = order.data.status.previous_status_id;
     let new_status_id = order.data.status.new_status_id;
-    console.log(`Order ${orderId} changed from ${statusMap.get(previous_status_id).name} to ${statusMap.get(new_status_id).name}!`)
+    console.log(
+      `Order ${orderId} changed from ${
+        statusMap.get(previous_status_id).name
+      } to ${statusMap.get(new_status_id).name}!`
+    );
   }
   res.status(200);
 }
