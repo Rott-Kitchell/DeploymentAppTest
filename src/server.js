@@ -13,9 +13,9 @@ import {
   findBCHookID,
   listBCHooks,
   updateBCHook,
-} from "./routes/hooks/hooks.service.js";
+} from "./routes/BChooks/hooks.service.js";
 
-if (environment == "development") {
+if (environment && environment == "development") {
   let ngrokURL = "";
 
   const { NGROKTOKEN, NGROKAPIKEY } = import("../config.js");
@@ -44,6 +44,7 @@ Ok, here's what's happening:
       console.log("Open the ngrok dashboard at: https://localhost:4040\n");
       listBCHooks()
         .then((data) => {
+          console.log("listHooksData",data);
           return (hookId = findBCHookID(data, "store/order/*"));
         })
         .then((hookId) => {

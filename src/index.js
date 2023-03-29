@@ -1,5 +1,5 @@
 import express from "express";
-import hookRouter from "./routes/hooks/hooks.router.js";
+import hookRouter from "./routes/BChooks/hooks.router.js";
 import cors from "cors";
 import errorHandler from "./errors/errorHandler.js";
 import notFound from "./errors/notFound.js";

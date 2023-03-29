@@ -1,11 +1,14 @@
 import statuses from "../../db/statuses.json" assert { type: "json" };
+import { BCToMondayOrderProcessor } from "../helpers.js";
 let statusMap = new Map();
 statuses.map((stat) => {
   let { id, ...theRest } = stat;
   statusMap.set(id, theRest);
 });
 
-// const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
+import { getOrderInfo } from "./hooks.service.js";
+
+import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js"
 // const reservationValidator = require("../util/reservationValidator");
 // const reservationsService = require("./reservations.service");
 
@@ -75,63 +78,38 @@ statuses.map((stat) => {
 //   next();
 // }
 
-// async function list(req, res, next) {
-//   const reservationDate = req.query.date;
-//   const data = reservationDate
-//     ? await reservationsService.listByDate(reservationDate)
-//     : await reservationsService.search(req.query.mobile_number);
-
-//   res.json({ data });
-// }
-
-async function BCOrderHook(req, res, next) {
-  let order = req.body;
-  if (order.scope === "store/order/statusUpdated") {
-    let orderId = order.data.id;
-    let previous_status_id = order.data.status.previous_status_id;
-    let new_status_id = order.data.status.new_status_id;
-    console.log(
-      `Order ${orderId} changed from ${
-        statusMap.get(previous_status_id).name
-      } to ${statusMap.get(new_status_id).name}!`
-    );
-  }
-  res.status(200);
+async function newOrderCreated(order) {
+  let orderId = order.id;
+  const fullOrder = await getOrderInfo(orderId);
+  return BCToMondayOrderProcessor(fullOrder)
 }
 
-// async function read(req, res, next) {
-//   const { reservation } = res.locals;
-//   res.json({ data: reservation });
-// }
+async function BCOrderHook(req, res) {
+  let order = req.body;
+ 
+  if (order.scope == "store/order/statusUpdated") {
+    console.log("Status Updated")
+    orderStatusUpdated(order);
+  }
+  else if (order.scope == "store/order/created") {
+    console.log("New Order created");
+    newOrderCreated(order);
+  } else {
+    console.log(order.scope)
+  }
+  res.status(200).send()
+}
 
-// async function updateStatus(req, res, next) {
-//   const {
-//     data: { status },
-//   } = req.body;
-//   const { reservation } = res.locals;
-//   if (reservation.status === "finished") {
-//     return next({
-//       status: 400,
-//       message: `a finished reservation cannot be updated`,
-//     });
-//   }
-
-//   if (!["booked", "seated", "finished", "cancelled"].includes(status)) {
-//     return next({
-//       status: 400,
-//       message: `Status cannot be ${status}`,
-//     });
-//   }
-
-//   const updatedRes = {
-//     ...reservation,
-//     status: status,
-//   };
-
-//   const newData = await reservationsService.update(updatedRes);
-
-//   res.status(200).json({ data: newData });
-// }
+function orderStatusUpdated(order) {
+  let orderId = order.data.id;
+  let previous_status_id = order.data.status.previous_status_id;
+  let new_status_id = order.data.status.new_status_id;
+  let orderStatus = `Order ${orderId} changed from ${
+    statusMap.get(previous_status_id).name
+  } to ${statusMap.get(new_status_id).name}!`
+  console.log(orderStatus);
+  return {orderStatus: orderStatus}
+}
 
 // async function update(req, res, next) {
 //   const { data } = req.body;
@@ -147,18 +125,5 @@ async function BCOrderHook(req, res, next) {
 //   res.status(200).json({ data: newData });
 // }
 
-// module.exports = {
-//   BCOrderHook: BCOrderHook,
-// //   create: [],
-// //   read: [asyncErrorBoundary(reservationExists), read],
-// //   updateStatus: [
-// //     asyncErrorBoundary(reservationExists),
-// //     asyncErrorBoundary(updateStatus),
-// //   ],
-// //   update: [
-// //     asyncErrorBoundary(hasValidFields),
-// //     asyncErrorBoundary(reservationExists),
-// //     asyncErrorBoundary(update),
-// //   ],
-// };
-export default BCOrderHook;
+
+export default asyncErrorBoundary(BCOrderHook);
