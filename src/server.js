@@ -6,7 +6,6 @@ const port = parseInt(MYPORT || 3000);
 // the following is for testing purposes only, will need to rewrite before publishing
 // _________________________________________________________________________//
 
-
 let hookId;
 
 import {
@@ -15,7 +14,7 @@ import {
   updateBCHook,
 } from "./routes/BChooks/hooks.service.js";
 
-if (environment && environment == "development") {
+if (!environment || environment == "development") {
   let ngrokURL = "";
 
   const { NGROKTOKEN, NGROKAPIKEY } = import("../config.js");
@@ -44,7 +43,7 @@ Ok, here's what's happening:
       console.log("Open the ngrok dashboard at: https://localhost:4040\n");
       listBCHooks()
         .then((data) => {
-          console.log("listHooksData",data);
+          console.log("listHooksData", data);
           return (hookId = findBCHookID(data, "store/order/*"));
         })
         .then((hookId) => {

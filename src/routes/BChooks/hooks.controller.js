@@ -8,7 +8,7 @@ statuses.map((stat) => {
 
 import { getOrderInfo } from "./hooks.service.js";
 
-import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js"
+import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js";
 // const reservationValidator = require("../util/reservationValidator");
 // const reservationsService = require("./reservations.service");
 
@@ -81,23 +81,22 @@ import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js"
 async function newOrderCreated(order) {
   let orderId = order.id;
   const fullOrder = await getOrderInfo(orderId);
-  return BCToMondayOrderProcessor(fullOrder)
+  BCToMondayOrderProcessor(fullOrder);
 }
 
 async function BCOrderHook(req, res) {
   let order = req.body;
- 
+
   if (order.scope == "store/order/statusUpdated") {
-    console.log("Status Updated")
+    console.log("Status Updated");
     orderStatusUpdated(order);
-  }
-  else if (order.scope == "store/order/created") {
+  } else if (order.scope == "store/order/created") {
     console.log("New Order created");
     newOrderCreated(order);
   } else {
-    console.log(order.scope)
+    console.log(order.scope);
   }
-  res.status(200).send()
+  res.status(200).send();
 }
 
 function orderStatusUpdated(order) {
@@ -106,9 +105,9 @@ function orderStatusUpdated(order) {
   let new_status_id = order.data.status.new_status_id;
   let orderStatus = `Order ${orderId} changed from ${
     statusMap.get(previous_status_id).name
-  } to ${statusMap.get(new_status_id).name}!`
+  } to ${statusMap.get(new_status_id).name}!`;
   console.log(orderStatus);
-  return {orderStatus: orderStatus}
+  return { orderStatus: orderStatus };
 }
 
 // async function update(req, res, next) {
@@ -124,6 +123,5 @@ function orderStatusUpdated(order) {
 
 //   res.status(200).json({ data: newData });
 // }
-
 
 export default asyncErrorBoundary(BCOrderHook);
