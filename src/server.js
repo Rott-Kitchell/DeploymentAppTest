@@ -5,7 +5,7 @@ const port = parseInt(MYPORT || 3000);
 // _________________________________________________________________________//
 // the following is for testing purposes only, will need to rewrite before publishing
 // _________________________________________________________________________//
-import fetch from "node-fetch";
+
 
 let hookId;
 
@@ -13,9 +13,9 @@ import {
   findBCHookID,
   listBCHooks,
   updateBCHook,
-} from "./routes/hooks/hooks.service.js";
+} from "./routes/BChooks/hooks.service.js";
 
-if (environment == "development") {
+if (environment && environment == "development") {
   let ngrokURL = "";
 
   const { NGROKTOKEN, NGROKAPIKEY } = import("../config.js");
@@ -36,7 +36,6 @@ Ok, here's what's happening:
 3. updateHook is called to update the hook
 4. nodemon is called while (in theory) excluding the ngrok tunnel since it doesn't need to be restarted. (WIP)
 */
-  console.log(nodemon.default);
   ngrok
     .connect(ngrokBody)
     .then((url) => {
@@ -45,6 +44,7 @@ Ok, here's what's happening:
       console.log("Open the ngrok dashboard at: https://localhost:4040\n");
       listBCHooks()
         .then((data) => {
+          console.log("listHooksData",data);
           return (hookId = findBCHookID(data, "store/order/*"));
         })
         .then((hookId) => {
@@ -59,7 +59,7 @@ Ok, here's what's happening:
         })
         .then(() => {
           nodemon({
-            exec: `SET NGROK_URL=${ngrokURL}&& node`,
+            exec: `set NGROK_URL=${ngrokURL}&& node`,
           })
             .on("start", () => {
               console.log("The application has started");
