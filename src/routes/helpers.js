@@ -1,11 +1,14 @@
 import fetch from "node-fetch";
+import kitSKUs from "../db/kits.json" assert { type: "json" };
+import { newOrderFromBCToMonday } from "./Monday/hooks.controller.js";
 // does the fetching
 export async function fetchJson(url, options, onCancel) {
   try {
     const response = await fetch(url, options);
     const payload = await response.json();
-    if (payload.error) {
-      return Promise.reject({ message: payload.error });
+    if (payload.errors) {
+      console.log(payload.errors);
+      return Promise.reject({ message: payload.errors[0] });
     }
     return payload;
   } catch (error) {
@@ -46,6 +49,7 @@ export function BCToMondayOrderProcessor({
     city,
     state,
     zip,
+    country,
     // Shipping Method
     shipping_method,
   }) => ({
@@ -57,35 +61,51 @@ export function BCToMondayOrderProcessor({
     city,
     state,
     zip,
+    country,
     shipping_method,
   }))(shipping_addresses[0]);
   shippingAddInfo = {
     ...shippingAddInfo,
     full_name: `${shippingAddInfo.first_name} ${shippingAddInfo.last_name}`,
   };
-  delete shippingAddInfo.first_name, shippingAddInfo.last_name;
-  
+  delete shippingAddInfo.first_name;
+  delete shippingAddInfo.last_name;
+
   //Products
+  const kits = new Set(kitSKUs);
   let mergedProducts = products.reduce((acc, prod) => {
     // remove kits
     if (kits.has(prod.sku)) return acc;
     let pId = prod.product_id;
     let index = acc.findIndex((obj) => obj.product_id === pId);
     if (index > -1) {
-      acc[index].quantity =
-        acc[index].quantity + prod.quantity;
+      acc[index].quantity = acc[index].quantity + prod.quantity;
     } else {
       // remove the extra 'kit' substrings
-      if (prod.name[0] === "(")
-        prod.name = prod.name.replace(
-          /(\s)?(\(.*?\))(\s)?/g,
-          ""
-        );
-      acc = [...acc, prod];
+      if (prod.name[0] === "(") {
+        prod.name = prod.name.replace(/(\s)?(\(.*?\))(\s)?/g, "");
+      }
+      acc = [
+        ...acc,
+        {
+          product_id: prod.product_id,
+          name: prod.name,
+          quantity: prod.quantity,
+          sku: prod.sku,
+        },
+      ];
     }
     return acc;
   }, []);
-  console.log(mergedProducts, 
   //*Staff Notes
   //*Customer Comments
+  newOrderFromBCToMonday(
+    orderId,
+    contact,
+    (date = { dateTime: dateTime, dateDate: dateDate }),
+    shippingAddInfo,
+    mergedProducts,
+    staff_notes,
+    customer_message
+  );
 }

@@ -8,6 +8,7 @@ const NGROKTOKEN = process.env.NGROKTOKEN;
 const NGROKAPIKEY = process.env.NGROKAPIKEY;
 const environment = process.env.NODE_ENV;
 const BCSTOREHASH = process.env.BCSTOREHASH;
+const MONDAYTOKEN = process.env.MONDAYTOKEN;
 
 export {
   MYPORT,
@@ -16,5 +17,6 @@ export {
   BCCLIENTID,
   NGROKTOKEN,
   NGROKAPIKEY,
+  MONDAYTOKEN,
   environment,
 };
