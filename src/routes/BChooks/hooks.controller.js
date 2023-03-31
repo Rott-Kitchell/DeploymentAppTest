@@ -78,15 +78,15 @@ import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js";
 //   next();
 // }
 
-async function newOrderCreated(order) {
-  let orderId = order.id;
+async function newOrderCreated({ data }) {
+  let orderId = data.id;
   const fullOrder = await getOrderInfo(orderId);
+  console.log("Order created: " + fullOrder.id);
   BCToMondayOrderProcessor(fullOrder);
 }
 
 async function BCOrderHook(req, res) {
   let order = req.body;
-
   if (order.scope == "store/order/statusUpdated") {
     console.log("Status Updated");
     orderStatusUpdated(order);

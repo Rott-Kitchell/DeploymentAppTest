@@ -98,15 +98,7 @@ export async function newOrderFromBCToMonday(
   ]
     .filter((el) => el != "")
     .join(" ");
-  // let query = `mutation { create_item (board_id: 4218719774, group_id: "duplicate_of_new_order", item_name: "Order #${orderId} - ${
-  //   contact.company ?? contact.full_name
-  // }", column_values: "{\"date4\" : {\"date\" : \"${
-  //   date.dateDate
-  // }\", \"time\" : \"${date.dateTime}\"},\"text7\" : \"${
-  //   contact.company
-  // }\",\"shipping_address8\" :\"${address}\", \"text58\" : \"${shipping_method}\", \"text6\": \"${staffNotes}\", \"text0\" : \"${
-  //   contact.full_name
-  // }\", \"text3\" : \"${customerMessage}\" }"){id}}`;
+
   let query =
     "mutation ($myItemName: String!, $columnVals: JSON!){ create_item (board_id:4218719774, item_name:$myItemName, column_values:$columnVals) { id } }";
   let vars = {
@@ -186,4 +178,4 @@ export async function newOrderFromBCToMonday(
 //   res.status(200).json({ data: newData });
 // }
 
-// export default asyncErrorBoundary(BCOrderHook);
+//export default newOrderFromBCToMonday;

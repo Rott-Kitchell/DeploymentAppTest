@@ -1,6 +1,5 @@
 import { MYPORT, environment } from "../config.js";
-
-import app from "./index.js";
+import app from "./app.js";
 const port = parseInt(MYPORT || 3000);
 // _________________________________________________________________________//
 // the following is for testing purposes only, will need to rewrite before publishing
@@ -47,6 +46,7 @@ Ok, here's what's happening:
           return (hookId = findBCHookID(data, "store/order/*"));
         })
         .then((hookId) => {
+          console.log(import.meta.url);
           let body = {
             scope: "store/order/*",
             destination: `${ngrokURL}/hook`,
@@ -77,6 +77,22 @@ Ok, here's what's happening:
     .catch((error) => {
       console.error("Error opening ngrok tunnel: ", error);
       process.exitCode = 1;
+    });
+} else if (environment === "production") {
+  listBCHooks()
+    .then((data) => {
+      console.log("listHooksData", data);
+      return (hookId = findBCHookID(data, "store/order/*"));
+    })
+    .then((hookId) => {
+      let body = {
+        scope: "store/order/*",
+        destination: `${import.meta.url}/hook`,
+        is_active: true,
+        events_history_enabled: true,
+      };
+
+      updateBCHook(hookId, body);
     });
 }
 app.listen(3000, listener);

@@ -6,8 +6,8 @@ export async function fetchJson(url, options, onCancel) {
   try {
     const response = await fetch(url, options);
     const payload = await response.json();
+    console.log(payload);
     if (payload.errors) {
-      console.log(payload.errors);
       return Promise.reject({ message: payload.errors[0] });
     }
     return payload;

@@ -11,9 +11,12 @@ const headers = {
 // whenever you start the app, it will update the BigCommerce hook with the new tunnel address (this will be deleted eventually, only for testing purposes)
 export async function updateBCHook(hookId, data) {
   console.log("update: ", hookId, data);
-  const url = new URL(
-    `https://api.bigcommerce.com/stores/${BCSTOREHASH}/v3/hooks/${hookId}`
-  );
+  let url = hookId
+    ? new URL(
+        `https://api.bigcommerce.com/stores/${BCSTOREHASH}/v3/hooks/${hookId}`
+      )
+    : new URL(`https://api.bigcommerce.com/stores/${BCSTOREHASH}/v3/hooks`);
+
   const options = {
     method: "PUT",
     headers,

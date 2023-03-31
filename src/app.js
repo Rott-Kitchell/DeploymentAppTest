@@ -14,8 +14,12 @@ app.use(express.json());
 
 //this hook path is currently the only one working
 app.use("/hook", hookRouter);
+process.on("unhandledRejection", (reason, p) => {
+  console.log("Unhandled Rejection at: Promise", p, "reason:", reason);
+  // application specific logging, throwing an error, or other logic here
+});
 
-app.use(notFound);
 app.use(errorHandler);
+app.use(notFound);
 
 export default app;
