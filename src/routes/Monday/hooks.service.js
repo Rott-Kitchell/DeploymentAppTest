@@ -1,5 +1,5 @@
 const { MONDAYTOKEN } = await import("../../../config.js");
-import { fetchJson } from "../helpers.js";
+import fetchJson from "../../utils/fetchJson.js";
 const headers = {
   "Content-Type": "application/json",
   Authorization: MONDAYTOKEN,

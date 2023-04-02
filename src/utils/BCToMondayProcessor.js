@@ -1,26 +1,7 @@
-import fetch from "node-fetch";
 import kitSKUs from "../db/kits.json" assert { type: "json" };
-import { newOrderFromBCToMonday } from "./Monday/hooks.controller.js";
-// does the fetching
-export async function fetchJson(url, options, onCancel) {
-  try {
-    const response = await fetch(url, options);
-    const payload = await response.json();
-    console.log(payload);
-    if (payload.errors) {
-      return Promise.reject({ message: payload.errors[0] });
-    }
-    return payload;
-  } catch (error) {
-    if (error.name !== "AbortError") {
-      console.error(error.stack);
-      throw error;
-    }
-    return Promise.resolve(onCancel);
-  }
-}
+import { newOrderFromBCToMonday } from "../routes/Monday/hooks.controller.js";
 
-export function BCToMondayOrderProcessor({
+export default function BCToMondayOrderProcessor({
   id,
   date_created,
   billing_address: { first_name: bFirst, last_name: bLast, company },

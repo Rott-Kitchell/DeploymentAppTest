@@ -46,7 +46,6 @@ Ok, here's what's happening:
           return (hookId = findBCHookID(data, "store/order/*"));
         })
         .then((hookId) => {
-          console.log(import.meta.url);
           let body = {
             scope: "store/order/*",
             destination: `${ngrokURL}/hook`,

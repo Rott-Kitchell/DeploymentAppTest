@@ -8,6 +8,7 @@ statuses.map((stat) => {
 import { sendToMonday } from "./hooks.service.js";
 
 import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js";
+import doesItemAlreadyExistMonday from "../../utils/doesItemAlreadyExistInMonday";
 // const reservationValidator = require("../util/reservationValidator");
 // const reservationsService = require("./reservations.service");
 
@@ -76,6 +77,20 @@ import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js";
 
 //   next();
 // }
+
+export async function BCToMondayStatusUpdate(orderId, status) {
+  console.log("BCToMondayStatusUpdate", orderId.toString(), status);
+  if (doesItemAlreadyExistMonday(orderId)) {
+    query =
+      "mutation ($itemId: Int!, $colValue: String!) { change_simple_column_value (board_id: 4218719774, item_id: $itemId, column_id: 'status', value: $colValue) { id }}";
+    vars = {
+      itemId: id,
+      colValue: status,
+    };
+    sendToMonday(query, vars);
+  } else {
+  }
+}
 
 export async function newOrderFromBCToMonday(
   orderId,

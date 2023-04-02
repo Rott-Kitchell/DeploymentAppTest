@@ -1,5 +1,7 @@
 import statuses from "../../db/statuses.json" assert { type: "json" };
-import { BCToMondayOrderProcessor } from "../helpers.js";
+import BCToMondayOrderProcessor from "../../utils/BCToMondayProcessor.js";
+import { BCToMondayStatusUpdate } from "../Monday/hooks.controller.js";
+import hashChecker from "../../utils/hashChecker.js";
 let statusMap = new Map();
 statuses.map((stat) => {
   let { id, ...theRest } = stat;
@@ -87,6 +89,8 @@ async function newOrderCreated({ data }) {
 
 async function BCOrderHook(req, res) {
   let order = req.body;
+  console.log("BCOrderHook: " + JSON.stringify(order));
+  if (hashChecker(order.hash)) return res.status(200).send();
   if (order.scope == "store/order/statusUpdated") {
     console.log("Status Updated");
     orderStatusUpdated(order);
@@ -103,11 +107,11 @@ function orderStatusUpdated(order) {
   let orderId = order.data.id;
   let previous_status_id = order.data.status.previous_status_id;
   let new_status_id = order.data.status.new_status_id;
-  let orderStatus = `Order ${orderId} changed from ${
+  let orderStatusLog = `Order ${orderId} changed from ${
     statusMap.get(previous_status_id).name
   } to ${statusMap.get(new_status_id).name}!`;
-  console.log(orderStatus);
-  return { orderStatus: orderStatus };
+  console.log(orderStatusLog);
+  BCToMondayStatusUpdate(orderId, statusMap.get(new_status_id).name);
 }
 
 // async function update(req, res, next) {

@@ -1,7 +1,7 @@
 const { BCACCESSTOKEN, BCCLIENTID, BCSTOREHASH } = await import(
   "../../../config.js"
 );
-import { fetchJson } from "../helpers.js";
+import fetchJson from "../../utils/fetchJson.js";
 const headers = {
   "Content-Type": "application/json",
   "X-Auth-Token": BCACCESSTOKEN,
