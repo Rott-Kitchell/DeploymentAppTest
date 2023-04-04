@@ -8,7 +8,7 @@ statuses.map((stat) => {
 import { sendToMonday } from "./hooks.service.js";
 
 import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js";
-import doesItemAlreadyExistMonday from "../../utils/doesItemAlreadyExistInMonday";
+import doesItemAlreadyExistMonday from "../../utils/doesItemAlreadyExistInMonday.js";
 // const reservationValidator = require("../util/reservationValidator");
 // const reservationsService = require("./reservations.service");
 
@@ -80,15 +80,17 @@ import doesItemAlreadyExistMonday from "../../utils/doesItemAlreadyExistInMonday
 
 export async function BCToMondayStatusUpdate(orderId, status) {
   console.log("BCToMondayStatusUpdate", orderId.toString(), status);
-  if (doesItemAlreadyExistMonday(orderId)) {
+  let itemId = doesItemAlreadyExistMonday(orderId)
+  if (itemId) {
     query =
       "mutation ($itemId: Int!, $colValue: String!) { change_simple_column_value (board_id: 4218719774, item_id: $itemId, column_id: 'status', value: $colValue) { id }}";
     vars = {
-      itemId: id,
+      itemId: itemId,
       colValue: status,
     };
     sendToMonday(query, vars);
   } else {
+    
   }
 }
 

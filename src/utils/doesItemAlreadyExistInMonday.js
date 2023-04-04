@@ -8,6 +8,6 @@ export default function doesItemAlreadyExistMonday(orderId) {
   };
   sendToMonday(query, vars).then(({ data: { items_by_column_values } }) => {
     console.log("did this work?", items_by_column_values);
-    return items_by_column_values.length <= 0;
+    return items_by_column_values.length === 1 ? items_by_column_values[0].id: null;
   });
 }
