@@ -4,6 +4,7 @@ import { newOrderFromBCToMonday } from "../routes/Monday/hooks.controller.js";
 export default function BCToMondayOrderProcessor({
   id,
   date_created,
+  status,
   billing_address: { first_name: bFirst, last_name: bLast, company },
   shipping_addresses,
   products,
@@ -82,6 +83,7 @@ export default function BCToMondayOrderProcessor({
   //*Customer Comments
   newOrderFromBCToMonday(
     orderId,
+    status,
     contact,
     (date = { dateTime: dateTime, dateDate: dateDate }),
     shippingAddInfo,

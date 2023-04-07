@@ -2,6 +2,7 @@ import statuses from "../../db/statuses.json" assert { type: "json" };
 import BCToMondayOrderProcessor from "../../utils/BCToMondayProcessor.js";
 import { BCToMondayStatusUpdate } from "../Monday/hooks.controller.js";
 import hashChecker from "../../utils/hashChecker.js";
+import BCOrderValidator from "../../utils/BCOrderValidator.js";
 let statusMap = new Map();
 statuses.map((stat) => {
   let { id, ...theRest } = stat;
@@ -80,9 +81,12 @@ import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js";
 //   next();
 // }
 
-async function newOrderCreated({ data }) {
+export async function newOrderCreated({ data }) {
   let orderId = data.id;
   const fullOrder = await getOrderInfo(orderId);
+  const invalidFields = BCOrderValidator(fullOrder);
+  if (invalidFields.length > 0)
+    throw new Error(`Invalid order field(s): ${invalidFields.join(", ")}`);
   console.log("Order created: " + fullOrder.id);
   BCToMondayOrderProcessor(fullOrder);
 }

@@ -6,9 +6,10 @@ statuses.map((stat) => {
 });
 
 import { sendToMonday } from "./hooks.service.js";
-
+import { newOrderCreated } from "../BChooks/hooks.controller.js";
+import { MONDAYBOARDID } from "../../../config";
 import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js";
-import doesItemAlreadyExistMonday from "../../utils/doesItemAlreadyExistInMonday";
+import doesItemExistMonday from "../../utils/doesItemExistInMonday.js";
 // const reservationValidator = require("../util/reservationValidator");
 // const reservationsService = require("./reservations.service");
 
@@ -80,20 +81,27 @@ import doesItemAlreadyExistMonday from "../../utils/doesItemAlreadyExistInMonday
 
 export async function BCToMondayStatusUpdate(orderId, status) {
   console.log("BCToMondayStatusUpdate", orderId.toString(), status);
-  if (doesItemAlreadyExistMonday(orderId)) {
+  if (doesItemExistMonday(orderId)) {
     query =
-      "mutation ($itemId: Int!, $colValue: String!) { change_simple_column_value (board_id: 4218719774, item_id: $itemId, column_id: 'status', value: $colValue) { id }}";
+      "mutation ($boardId: Int!, $itemId: Int!, $colValue: String!) { change_simple_column_value (board_id: $boardId, item_id: $itemId, column_id: 'status', value: $colValue) { id }}";
     vars = {
+      boardId: MONDAYBOARDID,
       itemId: id,
       colValue: status,
     };
     sendToMonday(query, vars);
   } else {
+    console.log(
+      "BCToMondayStatusUpdate: Order not in Monday, getting info from BC"
+    );
+    let order = { data: { id: orderId } };
+    newOrderCreated(order);
   }
 }
 
 export async function newOrderFromBCToMonday(
   orderId,
+  status,
   contact,
   date,
   { shipping_method, ...shippingInfo } = shippingInfo,
@@ -115,11 +123,13 @@ export async function newOrderFromBCToMonday(
     .join(" ");
 
   let query =
-    "mutation ($myItemName: String!, $columnVals: JSON!){ create_item (board_id:4218719774, item_name:$myItemName, column_values:$columnVals) { id } }";
+    "mutation ($boardId: Int!, $myItemName: String!, $columnVals: JSON!){ create_item (board_id:$BoardId, item_name:$myItemName, column_values:$columnVals) { id } }";
   let vars = {
+    boardId: MONDAYBOARDID,
     myItemName: `Order #${orderId} - ${contact.company ?? contact.full_name}`,
     columnVals: JSON.stringify({
       dup__of_order__: orderId,
+      status: status,
       date4: { date: date.dateDate, time: date.dateTime },
       text7: contact.company,
       shipping_address8: address,

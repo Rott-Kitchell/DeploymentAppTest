@@ -55,16 +55,26 @@ export async function getOrderInfo(orderId) {
     await fetchJson(orderUrl, { headers }, {}),
     await fetchJson(shippingUrl, { headers }, {}),
     await fetchJson(productsUrl, { headers }, {}),
-  ]).then((result) => {
-    let main = result.find((x) => !Array.isArray(x)),
-      shipping_addresses = result.find(
-        (x) => Array.isArray(x) && x[0].street_1
-      ),
-      products = result.find((x) => Array.isArray(x) && x[0].product_id);
-    return {
-      ...main,
-      shipping_addresses: shipping_addresses,
-      products: products,
-    };
-  });
+  ])
+    .then((result) => {
+      console.log("getOrderInfo", result);
+      result.forEach((r) => {
+        if (!r.status || r.status === 404)
+          throw new Error("Order not found in BC!!");
+      });
+      let main = result.find((x) => !Array.isArray(x)),
+        shipping_addresses = result.find(
+          (x) => Array.isArray(x) && x[0].street_1
+        ),
+        products = result.find((x) => Array.isArray(x) && x[0].product_id);
+      return {
+        ...main,
+        shipping_addresses: shipping_addresses,
+        products: products,
+      };
+    })
+    .catch((err) => {
+      console.log("error getting full order info", err);
+      throw err;
+    });
 }
