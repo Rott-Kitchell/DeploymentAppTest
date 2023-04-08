@@ -11,7 +11,7 @@ export default function BCToMondayOrderProcessor({
   staff_notes,
   customer_message,
 }) {
-  //What I need from order:
+  //What Monday needs from order:
   //Order Number
   const orderId = id;
   // Billing Company/Customer Name

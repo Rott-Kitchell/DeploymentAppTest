@@ -94,6 +94,7 @@ export async function newOrderCreated({ data }) {
 async function BCOrderHook(req, res) {
   let order = req.body;
   console.log("BCOrderHook: " + JSON.stringify(order));
+  // checks if this particular event has been sent recently by checking the hash
   if (hashChecker(order.hash)) return res.status(200).send();
   if (order.scope == "store/order/statusUpdated") {
     console.log("Status Updated");
@@ -104,6 +105,7 @@ async function BCOrderHook(req, res) {
   } else {
     console.log(order.scope);
   }
+  //BC always needs a 200 status back or it will retry to send the data in intervals and eventually close the webhook. https://developer.bigcommerce.com/api-docs/store-management/webhooks/about-webhooks
   res.status(200).send();
 }
 
@@ -115,6 +117,7 @@ function orderStatusUpdated(order) {
     statusMap.get(previous_status_id).name
   } to ${statusMap.get(new_status_id).name}!`;
   console.log(orderStatusLog);
+  // sends orderId and new staus name to Monday/hooks.controller
   BCToMondayStatusUpdate(orderId, statusMap.get(new_status_id).name);
 }
 

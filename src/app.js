@@ -4,8 +4,6 @@ import cors from "cors";
 import errorHandler from "./errors/errorHandler.js";
 import notFound from "./errors/notFound.js";
 
-import { MYPORT, environment } from "../config.js";
-
 const app = express();
 
 app.use(cors());

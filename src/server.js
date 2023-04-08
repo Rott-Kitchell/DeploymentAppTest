@@ -78,6 +78,7 @@ Ok, here's what's happening:
       process.exitCode = 1;
     });
 } else if (environment === "production") {
+  // at startup of server, find the hook id and update the webhook with the current url
   listBCHooks()
     .then((data) => {
       console.log("listHooksData", data);

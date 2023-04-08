@@ -31,19 +31,20 @@ export default function BCOrderValidator(data) {
     "shipping_addresses",
     "products",
   ]);
-
+  // values of data are not blank
   dataMap.forEach((value, key) => {
     if (value === "" || value === undefined || !validFields.has(key)) {
       invalidFields.push(key);
     }
   });
   console.log("validator, after value check", invalidFields);
-
+  // fields exist in data
   validFields.forEach((field) => {
     if (!dataKeys.includes(field) && !invalidFields.includes(field))
       invalidFields.push(field);
   });
   console.log("validator, after fields check", invalidFields);
+  // makes sure there are products
   if (
     dataMap.get("products").length <= 0 ||
     !Array.isArray(dataMap.get("products"))
@@ -51,5 +52,6 @@ export default function BCOrderValidator(data) {
     if (!invalidFields.includes("products")) invalidFields.push("products");
   }
   console.log("validator, after products check", invalidFields);
+  // returns array of strings corresponding to invalid fields, if any
   return invalidFields;
 }
