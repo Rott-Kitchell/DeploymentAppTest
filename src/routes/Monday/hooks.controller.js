@@ -7,9 +7,9 @@ statuses.map((stat) => {
 
 import { sendToMonday } from "./hooks.service.js";
 import { newOrderCreated } from "../BChooks/hooks.controller.js";
-import { MONDAYBOARDID } from "../../../config";
+import { MONDAYBOARDID } from "../../../config.js";
 import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js";
-import doesItemExistMonday from "../../utils/doesItemExistInMonday.js";
+import doesItemExistInMonday from "../../utils/doesItemExistInMonday.js";
 // const reservationValidator = require("../util/reservationValidator");
 // const reservationsService = require("./reservations.service");
 
@@ -81,15 +81,18 @@ import doesItemExistMonday from "../../utils/doesItemExistInMonday.js";
 
 export async function BCToMondayStatusUpdate(orderId, status) {
   console.log("BCToMondayStatusUpdate", orderId.toString(), status);
-  if (doesItemExistMonday(orderId)) {
-    query =
-      "mutation ($boardId: Int!, $itemId: Int!, $colValue: String!) { change_simple_column_value (board_id: $boardId, item_id: $itemId, column_id: 'status', value: $colValue) { id }}";
-    vars = {
-      boardId: MONDAYBOARDID,
-      itemId: id,
-      colValue: status,
-    };
-    sendToMonday(query, vars);
+  let doesItExist = await doesItemExistInMonday(orderId);
+  console.log("checking ", doesItExist);
+  if (doesItExist) {
+    let query =
+        "mutation ($boardId: Int!, $itemId: Int!, $colId: String! $colValue: String!) { change_simple_column_value (board_id: $boardId, item_id: $itemId, column_id: $colId, value: $colValue) { id }}",
+      vars = {
+        boardId: parseInt(MONDAYBOARDID),
+        itemId: parseInt(doesItExist),
+        colId: "status",
+        colValue: status,
+      };
+    sendToMonday(query, vars).then(console.log);
   } else {
     console.log(
       "BCToMondayStatusUpdate: Order not in Monday, getting info from BC"
@@ -123,9 +126,9 @@ export async function newOrderFromBCToMonday(
     .join(" ");
 
   let query =
-    "mutation ($boardId: Int!, $myItemName: String!, $columnVals: JSON!){ create_item (board_id:$BoardId, item_name:$myItemName, column_values:$columnVals) { id } }";
+    "mutation ($boardId: Int!, $myItemName: String!, $columnVals: JSON!){ create_item (board_id:$boardId, item_name:$myItemName, column_values:$columnVals) { id } }";
   let vars = {
-    boardId: MONDAYBOARDID,
+    boardId: parseInt(MONDAYBOARDID),
     myItemName: `Order #${orderId} - ${contact.company ?? contact.full_name}`,
     columnVals: JSON.stringify({
       dup__of_order__: orderId,
@@ -139,28 +142,32 @@ export async function newOrderFromBCToMonday(
       text3: customerMessage,
     }),
   };
-  sendToMonday(query, vars).then(
-    ({
-      data: {
-        create_item: { id },
-      },
-    }) => {
-      products.forEach((prod) => {
-        let prodQuery =
-          "mutation ($parentItemID: Int!, $myItemName: String!, $columnVals: JSON!){ create_subitem (parent_item_id:$parentItemID, item_name:$myItemName, column_values:$columnVals) { id board { id }}}";
-        let prodVars = {
-          parentItemID: parseInt(id),
-          myItemName: prod.name,
-          columnVals: JSON.stringify({
-            dup__of_prod_id: parseInt(prod.product_id),
-            quantity3: prod.quantity,
-            dup__of_sku: prod.sku,
-          }),
-        };
-        sendToMonday(prodQuery, prodVars);
-      });
-    }
-  );
+  sendToMonday(query, vars)
+    .then(
+      ({
+        data: {
+          create_item: { id },
+        },
+      }) => {
+        products.forEach((prod) => {
+          let prodQuery =
+            "mutation ($parentItemID: Int!, $myItemName: String!, $columnVals: JSON!){ create_subitem (parent_item_id:$parentItemID, item_name:$myItemName, column_values:$columnVals) { id board { id }}}";
+          let prodVars = {
+            parentItemID: parseInt(id),
+            myItemName: prod.name,
+            columnVals: JSON.stringify({
+              dup__of_prod_id: parseInt(prod.product_id),
+              quantity3: prod.quantity,
+              dup__of_sku: prod.sku,
+            }),
+          };
+          sendToMonday(prodQuery, prodVars);
+        });
+      }
+    )
+    .catch((err) => {
+      throw new Error(err.message);
+    });
 }
 
 // async function BCOrderHook(req, res) {

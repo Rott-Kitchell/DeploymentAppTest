@@ -12,10 +12,6 @@ app.use(express.json());
 
 //this hook path is currently the only one working
 app.use("/hook", BCHookRouter);
-process.on("unhandledRejection", (e, p) => {
-  console.log("Unhandled Rejection at: Promise", p, "reason:", e);
-  // application specific logging, throwing an error, or other logic here
-});
 
 app.use(errorHandler);
 app.use(notFound);

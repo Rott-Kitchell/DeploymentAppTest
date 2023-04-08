@@ -2,7 +2,8 @@ import fetch from "node-fetch";
 // does the fetching
 export default async function fetchJson(url, options, onCancel, n = 5) {
   try {
-    return (await fetch(url, options)).json();
+    let res = await fetch(url, options);
+    return res.json();
   } catch (err) {
     console.error(err);
     if (n < 1) throw err;

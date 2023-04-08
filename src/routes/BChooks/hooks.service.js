@@ -57,9 +57,8 @@ export async function getOrderInfo(orderId) {
     await fetchJson(productsUrl, { headers }, {}),
   ])
     .then((result) => {
-      console.log("getOrderInfo", result);
       result.forEach((r) => {
-        if (!r.status || r.status === 404)
+        if (r.status && r.status === 404)
           throw new Error("Order not found in BC!!");
       });
       let main = result.find((x) => !Array.isArray(x)),
