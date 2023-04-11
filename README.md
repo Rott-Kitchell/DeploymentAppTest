@@ -21,6 +21,7 @@ This can only be ran from one place at a time ATM, please ask me for the .env cr
 
 ##### To Do
 
+- BC Asynchronous info fix
 - revamp error handling
 - testing scripts (jest? mocha/chai?)
 - kit checking automation (pull current kits from BC app to filter out parent bundle items)

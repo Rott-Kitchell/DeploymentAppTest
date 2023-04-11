@@ -86,6 +86,7 @@ export async function newOrderCreated({ data }) {
   const fullOrder = await getOrderInfo(orderId);
   const invalidFields = BCOrderValidator(fullOrder);
   if (invalidFields.length > 0)
+    // push status code
     throw new Error(`Invalid order field(s): ${invalidFields.join(", ")}`);
   console.log("Order created: " + fullOrder.id);
   BCToMondayOrderProcessor(fullOrder);
@@ -96,6 +97,7 @@ async function BCOrderHook(req, res) {
   console.log("BCOrderHook: " + JSON.stringify(order));
   // checks if this particular event has been sent recently by checking the hash
   if (hashChecker(order.hash)) return res.status(200).send();
+  // flip these scopes**
   if (order.scope == "store/order/statusUpdated") {
     console.log("Status Updated");
     orderStatusUpdated(order);
