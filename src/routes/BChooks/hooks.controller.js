@@ -1,14 +1,76 @@
-import statuses from "../../db/statuses.json" assert { type: "json" };
 import BCToMondayOrderProcessor from "../../utils/BCToMondayProcessor.js";
 import { BCToMondayStatusUpdate } from "../Monday/hooks.controller.js";
 import hashChecker from "../../utils/hashChecker.js";
 import BCOrderValidator from "../../utils/BCOrderValidator.js";
 let statusMap = new Map();
+let statuses = [
+  {
+    id: 0,
+    name: "Incomplete",
+  },
+  {
+    id: 1,
+    name: "Pending",
+  },
+  {
+    id: 2,
+    name: "Shipped",
+  },
+  {
+    id: 3,
+    name: "Partially Shipped",
+  },
+  {
+    id: 4,
+    name: "Refunded",
+  },
+  {
+    id: 5,
+    name: "Cancelled",
+  },
+  {
+    id: 6,
+    name: "Declined",
+  },
+  {
+    id: 7,
+    name: "Awaiting Payment",
+  },
+  {
+    id: 8,
+    name: "Awaiting Pickup",
+  },
+  {
+    id: 9,
+    name: "Awaiting Shipment",
+  },
+  {
+    id: 10,
+    name: "Completed",
+    system_label: "Completed",
+  },
+  {
+    id: 11,
+    name: "Awaiting Fulfillment",
+  },
+  {
+    id: 12,
+    name: "Manual Verification Required",
+  },
+  {
+    id: 13,
+    name: "Disputed",
+  },
+  {
+    id: 14,
+    name: "Partially Refunded",
+  },
+];
 statuses.map((stat) => {
   let { id, ...theRest } = stat;
   statusMap.set(id, theRest);
 });
-
+const second = 1000;
 import { getOrderInfo } from "./hooks.service.js";
 
 import asyncErrorBoundary from "../../errors/asyncErrorBoundary.js";
@@ -86,8 +148,8 @@ export async function newOrderCreated({ data }) {
   const fullOrder = await getOrderInfo(orderId);
   const invalidFields = BCOrderValidator(fullOrder);
   if (invalidFields.length > 0)
-    // push status code
     throw new Error(`Invalid order field(s): ${invalidFields.join(", ")}`);
+  // push status code
   console.log("Order created: " + fullOrder.id);
   BCToMondayOrderProcessor(fullOrder);
 }
@@ -99,11 +161,15 @@ async function BCOrderHook(req, res) {
   if (hashChecker(order.hash)) return res.status(200).send();
   // flip these scopes**
   if (order.scope == "store/order/statusUpdated") {
-    console.log("Status Updated");
-    orderStatusUpdated(order);
+    console.log("Status Updated: wait 30 sec");
+    setTimeout(() => {
+      orderStatusUpdated(order);
+    }, second * 30);
   } else if (order.scope == "store/order/created") {
-    console.log("New Order created");
-    newOrderCreated(order);
+    console.log("New Order created: wait 15 sec");
+    setTimeout(() => {
+      newOrderCreated(order);
+    }, second * 15);
   } else {
     console.log(order.scope);
   }

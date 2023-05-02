@@ -1,5 +1,6 @@
 import { MYPORT, environment } from "../config.js";
 import app from "./app.js";
+import serverlessExpress from "@vendia/serverless-express";
 const port = parseInt(MYPORT || 3000);
 // _________________________________________________________________________//
 // the following is for testing purposes only, will need to rewrite before publishing
@@ -77,26 +78,11 @@ Ok, here's what's happening:
       console.error("Error opening ngrok tunnel: ", error);
       process.exitCode = 1;
     });
+  app.listen(3000, listener);
+
+  function listener() {
+    console.log(`Listening on Port 3000!`);
+  }
 } else if (environment === "production") {
-  // at startup of server, find the hook id and update the webhook with the current url
-  listBCHooks()
-    .then((data) => {
-      console.log("listHooksData", data);
-      return (hookId = findBCHookID(data, "store/order/*"));
-    })
-    .then((hookId) => {
-      let body = {
-        scope: "store/order/*",
-        destination: `${import.meta.url}/hook`,
-        is_active: true,
-        events_history_enabled: true,
-      };
-
-      updateBCHook(hookId, body);
-    });
-}
-app.listen(3000, listener);
-
-function listener() {
-  console.log(`Listening on Port 3000!`);
+  exports.handler = serverlessExpress({ app });
 }

@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless Webhook Handler
+Resources:
+  BCtoMondayTest:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: BCtoMondayTest
+      Handler: main.handler
+      Runtime: nodejs18.x
+      FunctionUrlConfig:
+        AuthType: AWS_IAM
+    Metadata:
+      SamResourceId: BCtoMondayTest
+Outputs:
+  BCtoMondayTest:
+    Description: Function URL for the Lambda Function.
+    Value:
+      Fn::GetAtt: BCtoMondayTestUrl.FunctionUrl

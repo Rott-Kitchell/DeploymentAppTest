@@ -1,4 +1,66 @@
-import statuses from "../../db/statuses.json" assert { type: "json" };
+let statuses = [
+  {
+    id: 0,
+    name: "Incomplete",
+  },
+  {
+    id: 1,
+    name: "Pending",
+  },
+  {
+    id: 2,
+    name: "Shipped",
+  },
+  {
+    id: 3,
+    name: "Partially Shipped",
+  },
+  {
+    id: 4,
+    name: "Refunded",
+  },
+  {
+    id: 5,
+    name: "Cancelled",
+  },
+  {
+    id: 6,
+    name: "Declined",
+  },
+  {
+    id: 7,
+    name: "Awaiting Payment",
+  },
+  {
+    id: 8,
+    name: "Awaiting Pickup",
+  },
+  {
+    id: 9,
+    name: "Awaiting Shipment",
+  },
+  {
+    id: 10,
+    name: "Completed",
+    system_label: "Completed",
+  },
+  {
+    id: 11,
+    name: "Awaiting Fulfillment",
+  },
+  {
+    id: 12,
+    name: "Manual Verification Required",
+  },
+  {
+    id: 13,
+    name: "Disputed",
+  },
+  {
+    id: 14,
+    name: "Partially Refunded",
+  },
+];
 let statusMap = new Map();
 statuses.map((stat) => {
   let { id, ...theRest } = stat;
@@ -94,11 +156,7 @@ export async function BCToMondayStatusUpdate(orderId, status) {
       };
     sendToMonday(query, vars).then(console.log);
   } else {
-    console.log(
-      "BCToMondayStatusUpdate: Order not in Monday, getting info from BC"
-    );
-    let order = { data: { id: orderId } };
-    newOrderCreated(order);
+    throw new Error("Order is not in Monday!");
   }
 }
 
