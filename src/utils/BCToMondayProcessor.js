@@ -1,25 +1,42 @@
 import kitSKUs from "../db/kits.json" assert { type: "json" };
 import { newOrderFromBCToMonday } from "../routes/Monday/hooks.controller.js";
 
-export default function BCToMondayOrderProcessor({
-  id,
-  date_created,
-  status,
-  billing_address: { first_name: bFirst, last_name: bLast, company },
-  shipping_addresses,
-  products,
-  staff_notes,
-  customer_message,
-}) {
+export default function BCToMondayOrderProcessor(
+  {
+    id,
+    date_created,
+    date_modified,
+    status,
+    billing_address: { first_name: bFirst, last_name: bLast, company },
+    shipping_addresses,
+    products,
+    staff_notes,
+    customer_message,
+  },
+  res
+) {
   //What Monday needs from order:
   //Order Number
   const orderId = id;
   // Billing Company/Customer Name
   let contact = { full_name: bFirst + " " + bLast, company: company };
   // date and time
-  let date = new Date(date_created).toJSON(),
-    dateTime = date.substring(date.indexOf("T") + 1, date.indexOf(".")),
-    dateDate = date.substring(0, date.indexOf("T"));
+  let dateCreated = new Date(date_created).toJSON(),
+    dateCreatedTime = dateCreated.substring(
+      dateCreated.indexOf("T") + 1,
+      dateCreated.indexOf(".")
+    ),
+    dateCtreatedDate = dateCreated.substring(0, dateCreated.indexOf("T"));
+  let dateModified = new Date(date_modified).toJSON(),
+    dateModifiedTime = dateModified.substring(
+      dateModified.indexOf("T") + 1,
+      dateModified.indexOf(".")
+    ),
+    dateModifiedDate = dateModified.substring(0, dateModified.indexOf("T"));
+
+  console.log("Date Created: ", dateCreatedTime, dateCtreatedDate);
+  console.log("Date Modified: ", dateModifiedTime, dateModifiedDate);
+
   //shipping address/es w/ names
 
   let shippingAddInfo = (({
@@ -85,10 +102,12 @@ export default function BCToMondayOrderProcessor({
     orderId,
     status,
     contact,
-    (date = { dateTime: dateTime, dateDate: dateDate }),
+    (dateCreated = { dateCreatedTime, dateCtreatedDate }),
+    (dateModified = { dateModifiedTime, dateModifiedDate }),
     shippingAddInfo,
     mergedProducts,
     staff_notes,
-    customer_message
+    customer_message,
+    res
   );
 }
