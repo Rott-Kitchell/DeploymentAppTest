@@ -10,7 +10,10 @@ app.use(cors());
 app.options("*", cors());
 app.use(express.json());
 
-//this hook path is currently the only one working
+app.get("/", (req, res) => {
+  res.send("OhHaiMark!");
+});
+
 app.use("/hook", BCHookRouter);
 
 app.use(errorHandler);

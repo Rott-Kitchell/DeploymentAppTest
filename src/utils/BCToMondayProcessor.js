@@ -1,5 +1,5 @@
 import kitSKUs from "../db/kits.json" assert { type: "json" };
-import { newOrderFromBCToMonday } from "../routes/Monday/hooks.controller.js";
+import { FromBCToMonday } from "../routes/Monday/hooks.controller.js";
 
 export default function BCToMondayOrderProcessor(
   {
@@ -26,7 +26,7 @@ export default function BCToMondayOrderProcessor(
       dateCreated.indexOf("T") + 1,
       dateCreated.indexOf(".")
     ),
-    dateCtreatedDate = dateCreated.substring(0, dateCreated.indexOf("T"));
+    dateCreatedDate = dateCreated.substring(0, dateCreated.indexOf("T"));
   let dateModified = new Date(date_modified).toJSON(),
     dateModifiedTime = dateModified.substring(
       dateModified.indexOf("T") + 1,
@@ -34,7 +34,7 @@ export default function BCToMondayOrderProcessor(
     ),
     dateModifiedDate = dateModified.substring(0, dateModified.indexOf("T"));
 
-  console.log("Date Created: ", dateCreatedTime, dateCtreatedDate);
+  console.log("Date Created: ", dateCreatedTime, dateCreatedDate);
   console.log("Date Modified: ", dateModifiedTime, dateModifiedDate);
 
   //shipping address/es w/ names
@@ -98,11 +98,11 @@ export default function BCToMondayOrderProcessor(
   }, []);
   //*Staff Notes
   //*Customer Comments
-  newOrderFromBCToMonday(
+  FromBCToMonday(
     orderId,
     status,
     contact,
-    (dateCreated = { dateCreatedTime, dateCtreatedDate }),
+    (dateCreated = { dateCreatedTime, dateCreatedDate }),
     (dateModified = { dateModifiedTime, dateModifiedDate }),
     shippingAddInfo,
     mergedProducts,
